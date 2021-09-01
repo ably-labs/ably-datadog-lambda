@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: An example CloudFormation stack to demonstrate how to publish Ably application stats into Datadog using the custom metrics API.
+Parameters:
+  LambdaS3Bucket:
+    Type: String
+    Description: S3 bucket containing the Lambda function zip file
+    Default: ably-datadog-lambda-example
+  LambdaS3Path:
+    Type: String
+    Description: Path to the Lambda function zip file in the S3 bucket
+    Default: lambda.zip
+  DatadogAPIKey:
+    Type: String
+    Description: Datadog API Key to use in the Lambda function to authenticate with the custom metrics API
+    NoEcho: true
+  DatadogAPIHostname:
+    Type: String
+    Description: Datadog API hostname to use in the Lambda function to post to the custom metrics API
+    Default: api.datadoghq.com
+  AblyLambdaExternalID:
+    Type: String
+    Description: The External ID to use in the IAM role trust policy which grants Ably permission to invoke the Lambda function (this has the form '<accountID>.<appID>', see https://knowledge.ably.com/authentication-for-reactor-rules-for-aws-reactor-events-for-lambda-functions-reactor-firehose-for-aws-sqs-and-kinesis).
+Resources:
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: lambda/index.handler
+      Runtime: nodejs14.x
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
+      Environment:
+        Variables:
+          DD_API_KEY: !Ref DatadogAPIKey
+          DD_HOSTNAME: !Ref DatadogAPIHostname
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: !Ref LambdaS3Path
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  LambdaInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::203461409171:root
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref AblyLambdaExternalID
+      Policies:
+        - PolicyName: AblyInvokePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt 'LambdaFunction.Arn'
+Outputs:
+  LambdaFunctionName:
+    Description: The name of the Lambda function
+    Value: !Ref LambdaFunction
+  IAMRoleARN:
+    Description: The ARN of the IAM role which grants Ably permission to invoke the Lambda function
+    Value: !GetAtt 'LambdaInvokeRole.Arn'

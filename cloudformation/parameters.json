@@ -1,0 +1,22 @@
+[
+  {
+    "ParameterKey":   "LambdaS3Bucket",
+    "ParameterValue": "ably-datadog-lambda-example"
+  },
+  {
+    "ParameterKey":   "LambdaS3Path",
+    "ParameterValue": "lambda.zip"
+  },
+  {
+    "ParameterKey":   "DatadogAPIKey",
+    "ParameterValue": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+    "ParameterKey":   "DatadogAPIHostname",
+    "ParameterValue": "api.datadoghq.com"
+  },
+  {
+    "ParameterKey":   "AblyLambdaExternalID",
+    "ParameterValue": "xxxxxx.yyyyyy"
+  }
+]
