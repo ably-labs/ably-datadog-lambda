@@ -81,7 +81,7 @@ zip -r lambda.zip lambda/*
 aws s3 cp lambda.zip "s3://ably-datadog-lambda-example/lambda.zip"
 ```
 
-- Set the S3 bucket, Datadog API key, and Ably External ID parameters in `cloudformation/parameters.json` (see [here](https://knowledge.ably.com/authentication-for-reactor-rules-for-aws-reactor-events-for-lambda-functions-reactor-firehose-for-aws-sqs-and-kinesis) for instructions on how to determine your Ably External ID, which takes the form `<accountID>.<appID>`)
+- Set the S3 bucket, Datadog API key, and Ably External ID parameters in `cloudformation/parameters.json` (see [here](https://ably.com/documentation/control-api#account-id) for instructions on how to determine your Ably External ID, which takes the form `<accountID>.<appID>`)
 
 - Deploy the CloudFormation stack:
 
